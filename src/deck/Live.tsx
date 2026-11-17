@@ -20,55 +20,20 @@ const mmss = (t: number) => {
 };
 
 /* ============================================================
-   SLIDE 8 — Exemplo Prático 01 (vídeo real + funções do código)
+   EXEMPLO PRÁTICO 01 — o código mais simples: useVideoPlayer + VideoView
+   com nativeControls ligado (a barra de tempo vem da própria biblioteca)
    ============================================================ */
 export function Live01({ slide, u }: { slide: Slide; u: number }) {
-  const ref = useRef<VideoView>(null);
-  const player = useVideoPlayer(VIDEOS.ex01, (p) => { p.loop = true; p.timeUpdateEventInterval = 0.25; });
-  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
-  const [cur, setCur] = useState(0);
-  const [dur, setDur] = useState(0);
-  const [fs, setFs] = useState(false);
-  useEventListener(player, 'timeUpdate', ({ currentTime }) => { setCur(currentTime); setDur(player.duration); });
-  useEventListener(player, 'statusChange', () => setDur(player.duration));
-
-  const I = slide.items; const T = slide.texts;
-  const frame = I[2]; const track = I[5]; const playBtn = I[6]; const icon = I[12];
-  const pct = dur > 0 ? Math.min(1, cur / dur) : 0;
-  const toggle = () => (isPlaying ? player.pause() : player.play());
-
+  const player = useVideoPlayer(VIDEOS.ex01); // sem loop: configuração mais pura possível
+  const frame = slide.items.find((i) => i.id === 'frame') as Item;
   return (
-    <SlideCanvas slide={slide} u={u} hidden={{ items: [3, 4, 5, 6, 7, 10, 11, 12, 13], texts: [4, 13, 14, 17, 18] }}>
-      {/* o vídeo de verdade, dentro do quadro roxo */}
+    <SlideCanvas slide={slide} u={u}>
       <View style={{ position: 'absolute', left: frame.x * u, top: frame.y * u, width: frame.w * u, height: frame.h * u, borderRadius: (frame.r ?? 0) * u, overflow: 'hidden', backgroundColor: VIOLET }}>
         <VideoView
-          ref={ref} style={{ width: '100%', height: '100%' }} player={player} contentFit="contain"
-          nativeControls={fs} fullscreenOptions={{ enable: true }} allowsPictureInPicture
-          onFullscreenEnter={() => setFs(true)} onFullscreenExit={() => setFs(false)}
+          style={{ width: '100%', height: '100%' }} player={player} contentFit="contain"
+          nativeControls={true} fullscreenOptions={{ enable: true }} allowsPictureInPicture
         />
       </View>
-      {/* etiqueta + ícone de tela cheia */}
-      <ItemView it={I[3]} u={u} /><TextView t={T[4]} u={u} />
-      <ItemView it={I[10]} u={u} /><Hit it={I[10]} u={u} onPress={() => ref.current?.enterFullscreen()} />
-      {/* botão grande de play (some enquanto toca) */}
-      {!isPlaying ? (<><ItemView it={I[4]} u={u} /><ItemView it={I[11]} u={u} /><Hit it={I[4]} u={u} onPress={() => player.play()} /></>) : null}
-      {/* barra de progresso e tempo */}
-      <ItemView it={track} u={u} />
-      <View style={{ position: 'absolute', left: track.x * u, top: track.y * u, width: track.w * u * pct, height: track.h * u, borderRadius: (track.r ?? 0) * u, backgroundColor: '#FFFFFF' }} />
-      <TextView t={T[13]} u={u} text={mmss(cur)} />
-      <TextView t={T[14]} u={u} text={`/ ${mmss(dur)}`} />
-      {/* botões Play/Pause e Loop */}
-      <ItemView it={playBtn} u={u} />
-      {isPlaying ? (
-        <View style={{ position: 'absolute', left: icon.x * u, top: icon.y * u, width: icon.w * u, height: icon.h * u, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: icon.w * u * 0.12 }}>
-          <View style={{ width: icon.w * u * 0.3, height: '100%', borderRadius: 2, backgroundColor: '#FFFFFF' }} />
-          <View style={{ width: icon.w * u * 0.3, height: '100%', borderRadius: 2, backgroundColor: '#FFFFFF' }} />
-        </View>
-      ) : <ItemView it={icon} u={u} />}
-      <TextView t={T[17]} u={u} text={isPlaying ? 'Pause' : 'Play'} />
-      <Hit it={playBtn} u={u} onPress={toggle} />
-      <ItemView it={I[7]} u={u} /><ItemView it={I[13]} u={u} />
-      <TextView t={T[18]} u={u} text={`Loop: ${player.loop ? 'Ativo' : 'Inativo'}`} />
     </SlideCanvas>
   );
 }
