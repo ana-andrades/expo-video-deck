@@ -31,7 +31,7 @@ export function Live01({ slide, u }: { slide: Slide; u: number }) {
       <View style={{ position: 'absolute', left: frame.x * u, top: frame.y * u, width: frame.w * u, height: frame.h * u, borderRadius: (frame.r ?? 0) * u, overflow: 'hidden', backgroundColor: VIOLET }}>
         <VideoView
           style={{ width: '100%', height: '100%' }} player={player} contentFit="cover"
-          nativeControls={true} fullscreenOptions={{ enable: true }} allowsPictureInPicture
+          nativeControls={true}
         />
       </View>
     </SlideCanvas>
